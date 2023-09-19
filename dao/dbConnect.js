@@ -2,6 +2,13 @@
 // 该文件负责连接数据库
 const { Sequelize } = require('sequelize')
 
+console.log(
+  '[ process.env.DB_NAME ] >',
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  process.env.DB_PORT
+)
 // 创建数据库连接
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -25,3 +32,6 @@ const sequelize = new Sequelize(
     console.error('Unable to connect to the database:', error)
   }
 })()
+
+// 向外暴露连接实例
+module.exports = sequelize

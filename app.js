@@ -5,14 +5,14 @@ var path = require('path')
 var cookieParser = require('cookie-parser')
 var logger = require('morgan')
 
-// 引入路由
-var indexRouter = require('./routes/index')
-var usersRouter = require('./routes/users')
-
 // 处理环境变量
 require('dotenv').config({ path: '.env.local' })
+
 // 引入数据库测试数据库连接
-require('./dao/dbConnect')
+require('./dao/db')
+
+// 引入路由
+var adminRouter = require('./routes/admin')
 
 // 创建服务器实例
 var app = express()
@@ -25,8 +25,7 @@ app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
 // 使用路由中间件
-app.use('/', indexRouter)
-app.use('/users', usersRouter)
+app.use('/api/admin', adminRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
