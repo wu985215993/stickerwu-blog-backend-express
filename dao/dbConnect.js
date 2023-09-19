@@ -1,8 +1,7 @@
 // 专用于做数据库连接 创建 sqquelize 的实例
 // 该文件负责连接数据库
 const { Sequelize } = require('sequelize')
-// 处理环境变量
-require('dotenv').config({ path: '.env.local' })
+
 // 创建数据库连接
 const sequelize = new Sequelize(
   process.env.DB_NAME,
