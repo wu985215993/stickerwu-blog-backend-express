@@ -9,6 +9,8 @@ var logger = require('morgan')
 var indexRouter = require('./routes/index')
 var usersRouter = require('./routes/users')
 
+// 引入数据库测试数据库连接
+require('./dao/dbConnect')
 // 创建服务器实例
 var app = express()
 
