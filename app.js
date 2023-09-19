@@ -1,20 +1,25 @@
+// 引包
 var createError = require('http-errors')
 var express = require('express')
 var path = require('path')
 var cookieParser = require('cookie-parser')
 var logger = require('morgan')
 
+// 引入路由
 var indexRouter = require('./routes/index')
 var usersRouter = require('./routes/users')
 
+// 创建服务器实例
 var app = express()
 
+// 使用各种中间件
 app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
+// 使用路由中间件
 app.use('/', indexRouter)
 app.use('/users', usersRouter)
 
@@ -23,7 +28,7 @@ app.use(function (req, res, next) {
   next(createError(404))
 })
 
-// error handler
+// 错误处理，一旦发生错误在这里统一处理
 app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message
