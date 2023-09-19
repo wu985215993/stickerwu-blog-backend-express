@@ -1,0 +1,12 @@
+# 忽略 node_modules 目录
+node_modules/
+
+# 忽略编辑器临时文件
+.vscode/
+.idea/
+
+# 忽略特定文件
+config.js
+
+# 忽略所有 .log 文件
+*.log
