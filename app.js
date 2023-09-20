@@ -1,10 +1,13 @@
 // 引包
-var createError = require('http-errors')
-var express = require('express')
-var path = require('path')
-var cookieParser = require('cookie-parser')
-var logger = require('morgan')
-
+const createError = require('http-errors')
+const express = require('express')
+const path = require('path')
+const cookieParser = require('cookie-parser')
+const logger = require('morgan')
+const md5 = require('md5')
+// 专用于客户端token验证
+const { expressjwt: expressJWT } = require('express-jwt')
+const { ForbiddenError } = require('./utils/errors')
 // 处理环境变量
 require('dotenv').config({ path: '.env.local' })
 
@@ -12,10 +15,10 @@ require('dotenv').config({ path: '.env.local' })
 require('./dao/db')
 
 // 引入路由
-var adminRouter = require('./routes/admin')
+const adminRouter = require('./routes/admin')
 
 // 创建服务器实例
-var app = express()
+const app = express()
 
 // 使用各种中间件
 app.use(logger('dev'))
@@ -24,6 +27,16 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
 
+// 配置验证 token接口 token验证错误 err.name = 'UnauthorizedError' token 验证错误 err.message = ' invalid token'
+app.use(
+  expressJWT({
+    secret: md5(process.env.JWT_SECRET), // 服务器所设置的密钥
+    algorithms: ['HS256'], // 新版本的 expressJWT 必须要求指定算法
+  }).unless({
+    // TODO 需要排除的 token 验证的路由  提出为公共 constant
+    path: [{ url: '/api/admin/login', methods: ['POST'] }],
+  })
+)
 // 使用路由中间件
 app.use('/api/admin', adminRouter)
 
@@ -34,6 +47,10 @@ app.use(function (req, res, next) {
 
 // 错误处理，一旦发生错误在这里统一处理
 app.use(function (err, req, res, next) {
+  // token 验证错误 抛出自定义错误
+  if (err.name === 'UnauthorizedError') {
+    res.send(new ForbiddenError('未登录，或者登录过期').toResponseJSON())
+  }
   // set locals, only providing error in development
   res.locals.message = err.message
   res.locals.error = req.app.get('env') === 'development' ? err : {}

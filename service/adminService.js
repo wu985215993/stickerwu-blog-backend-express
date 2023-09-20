@@ -7,9 +7,19 @@ module.exports.loginService = async function (loginInfo) {
   // 接下来进行数据的验证，也就是查询该条数据在数据库里面有没有 则这里就传到 DAO 层进行验证
   let data = await loginDao(loginInfo)
   let loginSuccess = data && data.dataValues
+  console.log(
+    '%c [ data.dataValues ]-10',
+    'font-size:13px; background:pink; color:#bf2c9f;',
+    data.dataValues
+  )
   // 登陆成功服务器则需要在生成一个 token 添加到 data 当中
   if (loginSuccess) {
-    data = data.dataValues
+    // 包装用户信息
+    data = {
+      id: data.dataValues.id,
+      loginId: data.dataValues.login_id,
+      name: data.dataValues.name,
+    }
     /** token有效期 */
     let loginPeriod = null
     // 添加 token
@@ -21,18 +31,10 @@ module.exports.loginService = async function (loginInfo) {
       loginPeriod = 1
     }
     // 生成 token
-    const token = jwt.sign(
-      {
-        id: data.id,
-        loginId: data.loginId,
-        name: data.name,
-      },
-      md5(process.env.JWT_SECRET),
-      {
-        /** 过期时长 */
-        expiresIn: 60 * 60 * 24 * loginPeriod,
-      }
-    )
+    const token = jwt.sign(data, md5(process.env.JWT_SECRET), {
+      /** 过期时长 */
+      expiresIn: 60 * 60 * 24 * loginPeriod,
+    })
     return { data, token }
   }
   return { data }

@@ -1,13 +1,14 @@
 // 自定义错误处理
 // 当错误发生的时候，我们捕获到发生的错误，然后抛出我们自定义的错误
+const { formatResponse } = require('./tool')
 /**
  * 业务处理错误基类
  */
 class ServiceError extends Error {
   /**
    *
-   * @param {*} message 错误消息
-   * @param {*} code  错误消息码
+   * @param {String} message 错误消息
+   * @param {Number} code  错误消息码
    */
   constructor(message, code) {
     super(message)
