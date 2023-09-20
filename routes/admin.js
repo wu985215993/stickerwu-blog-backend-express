@@ -12,6 +12,12 @@ router.post('/login', async function (req, res, next) {
     'font-size:13px; background:pink; color:#bf2c9f;',
     result
   )
+  /** 服务层表示登陆成功 */
+  if (result.token) {
+    res.setHeader('authentication', result.token)
+  }
+  // 格式化客户端的响应
+  // res.send()
 })
 
 module.exports = router
