@@ -2,9 +2,14 @@ const express = require('express')
 const router = express.Router()
 const { formatResponse, analysisToken } = require('../utils/tool')
 const { loginService, updateAdminService } = require('../service/adminService')
+const { ValidationError } = require('../utils/errors')
 /* POST 管理员登陆 */
 router.post('/login', async function (req, res, next) {
-  // TODO 验证码的验证 captcha的验证
+  //  验证码的验证 captcha的验证 session验证
+  if (req.body.captcha.toLowerCase() !== req.session.captcha.toLowerCase()) {
+    // 如果进入则说明用户输入的验证码不正确
+    throw new ValidationError('验证码错误')
+  }
   // 假设上面的验证码已经通过了则进行账号密码的业务逻辑验证在 service 中
   const result = await loginService(req.body)
 

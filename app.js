@@ -5,6 +5,7 @@ const path = require('path')
 const cookieParser = require('cookie-parser')
 const logger = require('morgan')
 const md5 = require('md5')
+const session = require('express-session')
 // 专用于客户端token验证
 const { expressjwt: expressJWT } = require('express-jwt')
 const { ForbiddenError, ServiceError, UnknownError } = require('./utils/errors')
@@ -16,10 +17,17 @@ require('./dao/db')
 
 // 引入路由
 const adminRouter = require('./routes/admin')
-
+const captchaRouter = require('./routes/captcha')
 // 创建服务器实例
 const app = express()
-
+// 引入 session
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: true,
+    saveUninitialized: true,
+  })
+)
 // 使用各种中间件
 app.use(logger('dev'))
 app.use(express.json())
@@ -34,11 +42,18 @@ app.use(
     algorithms: ['HS256'], // 新版本的 expressJWT 必须要求指定算法
   }).unless({
     // TODO 需要排除的 token 验证的路由  提出为公共 constant
-    path: [{ url: '/api/admin/login', methods: ['POST'] }],
+    path: [
+      { url: '/api/admin/login', methods: ['POST'] },
+      {
+        url: '/res/captcha',
+        methods: ['GET'],
+      },
+    ],
   })
 )
 // 使用路由中间件
 app.use('/api/admin', adminRouter)
+app.use('/res/captcha', captchaRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
