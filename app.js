@@ -7,10 +7,10 @@ const logger = require('morgan')
 const md5 = require('md5')
 // 专用于客户端token验证
 const { expressjwt: expressJWT } = require('express-jwt')
-const { ForbiddenError } = require('./utils/errors')
+const { ForbiddenError, ServiceError, UnknownError } = require('./utils/errors')
 // 处理环境变量
 require('dotenv').config({ path: '.env.local' })
-
+require('express-async-errors')
 // 引入数据库测试数据库连接
 require('./dao/db')
 
@@ -47,9 +47,18 @@ app.use(function (req, res, next) {
 
 // 错误处理，一旦发生错误在这里统一处理
 app.use(function (err, req, res, next) {
+  console.log(
+    '%c [ 监听错误 err ]-50',
+    'font-size:13px; background:pink; color:#bf2c9f;',
+    err
+  )
   // token 验证错误 抛出自定义错误
   if (err.name === 'UnauthorizedError') {
     res.send(new ForbiddenError('未登录，或者登录过期').toResponseJSON())
+  } else if (err instanceof ServiceError) {
+    res.send(err.toResponseJSON())
+  } else {
+    res.send(new UnknownError().toResponseJSON())
   }
   // set locals, only providing error in development
   res.locals.message = err.message

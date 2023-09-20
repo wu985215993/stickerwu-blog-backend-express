@@ -10,3 +10,19 @@ module.exports.loginDao = async function (loginInfo) {
     },
   })
 }
+// 更新管理员
+module.exports.updateAdminDao = async function (updateInfo) {
+  const { loginId: login_id, loginPwd: login_pwd, name } = updateInfo
+  return await adminModel.update(
+    {
+      name,
+      login_id,
+      login_pwd,
+    },
+    {
+      where: {
+        login_id,
+      },
+    }
+  )
+}

@@ -1,17 +1,16 @@
 // admin 模块的业务逻辑层
 const md5 = require('md5')
-const { loginDao } = require('../dao/adminDao')
+const { loginDao, updateAdminDao } = require('../dao/adminDao')
 const jwt = require('jsonwebtoken')
+const { ValidationError } = require('../utils/errors')
+const { formatResponse } = require('../utils/tool')
+
+/** 登录 */
 module.exports.loginService = async function (loginInfo) {
   loginInfo.loginPwd = md5(loginInfo.loginPwd) // 进行加密
   // 接下来进行数据的验证，也就是查询该条数据在数据库里面有没有 则这里就传到 DAO 层进行验证
   let data = await loginDao(loginInfo)
   let loginSuccess = data && data.dataValues
-  console.log(
-    '%c [ data.dataValues ]-10',
-    'font-size:13px; background:pink; color:#bf2c9f;',
-    data.dataValues
-  )
   // 登陆成功服务器则需要在生成一个 token 添加到 data 当中
   if (loginSuccess) {
     // 包装用户信息
@@ -38,4 +37,34 @@ module.exports.loginService = async function (loginInfo) {
     return { data, token }
   }
   return { data }
+}
+
+/** 更新管理员信息 */
+module.exports.updateAdminService = async function (updateInfo) {
+  // 1. 根据传入的账号信息查询对应的用户 （注意使用旧密码查询）
+  const adminInfo = await loginDao({
+    loginId: updateInfo.loginId,
+    loginPwd: md5(updateInfo.oldLoginPwd),
+  })
+  // 2. 分为两种情况，有用户信息 或者 无用户信息
+  if (adminInfo && adminInfo.dataValues) {
+    // 说明密码正确开始修改管理员信息 组装新的对象进行更新
+    const newPassword = md5(updateInfo.loginPwd)
+    const updateData = {
+      name: updateInfo.name,
+      loginId: updateInfo.loginId,
+      loginPwd: newPassword,
+    }
+    // result 为 1 返回接口需要的响应信息
+    await updateAdminDao(updateData)
+
+    return formatResponse(0, '', {
+      loginId: updateData.loginId,
+      name: updateData.name,
+      id: adminInfo.dataValues.id,
+    })
+  } else {
+    // 3. 无用户信息 密码输入不正确 抛出自定义错误
+    throw new ValidationError('用户id or 旧密码输入不正确')
+  }
 }

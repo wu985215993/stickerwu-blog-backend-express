@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { formatResponse, analysisToken } = require('../utils/tool')
-const { loginService } = require('../service/adminService')
+const { loginService, updateAdminService } = require('../service/adminService')
 /* POST 管理员登陆 */
 router.post('/login', async function (req, res, next) {
   // TODO 验证码的验证 captcha的验证
@@ -30,4 +30,10 @@ router.get('/whoami', async function (req, res, next) {
     })
   )
 })
+
+/** PUT 修改管理员信息 */
+router.put('/', async function (req, res, next) {
+  res.send(await updateAdminService(req.body))
+})
+
 module.exports = router
