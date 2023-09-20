@@ -2,13 +2,6 @@
 // 该文件负责连接数据库
 const { Sequelize } = require('sequelize')
 
-console.log(
-  '[ process.env.DB_NAME ] >',
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
-  process.env.DB_PORT
-)
 // 创建数据库连接
 const sequelize = new Sequelize(
   process.env.DB_NAME,
@@ -27,9 +20,9 @@ const sequelize = new Sequelize(
 ;(async function () {
   try {
     await sequelize.authenticate()
-    console.log('Connection has been established successfully.')
+    console.log('>>>>>> 数据库连接成功...')
   } catch (error) {
-    console.error('Unable to connect to the database:', error)
+    console.error('无法连接到数据库:', error)
   }
 })()
 

@@ -1,5 +1,5 @@
 // DAO层负责与数据库进行交互
-const adminModel = require('./model/admin')
+const adminModel = require('./model/adminModel')
 
 // 登陆
 module.exports.loginDao = async function (loginInfo) {
