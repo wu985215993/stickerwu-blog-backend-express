@@ -1,3 +1,5 @@
+// 处理环境变量
+require('dotenv').config({ path: '.env.local' })
 // 引包
 const createError = require('http-errors')
 const express = require('express')
@@ -9,8 +11,7 @@ const session = require('express-session')
 // 专用于客户端token验证
 const { expressjwt: expressJWT } = require('express-jwt')
 const { ForbiddenError, ServiceError, UnknownError } = require('./utils/errors')
-// 处理环境变量
-require('dotenv').config({ path: '.env.local' })
+
 require('express-async-errors')
 // 引入数据库测试数据库连接
 require('./dao/db')
@@ -19,6 +20,7 @@ require('./dao/db')
 const adminRouter = require('./routes/admin')
 const captchaRouter = require('./routes/captcha')
 const bannerRouter = require('./routes/banner')
+const uploadRouter = require('./routes/upload')
 // 创建服务器实例
 const app = express()
 // 引入 session
@@ -56,6 +58,7 @@ app.use(
 app.use('/api/admin', adminRouter)
 app.use('/res/captcha', captchaRouter)
 app.use('/api/banner', bannerRouter)
+app.use('/api/upload', uploadRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

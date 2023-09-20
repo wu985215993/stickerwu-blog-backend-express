@@ -1,6 +1,8 @@
 const md5 = require('md5')
 // 格式化响应数据
 const jwt = require('jsonwebtoken')
+const multer = require('multer')
+const multerAliOss = require('multer-aliyun-oss')
 module.exports.formatResponse = (code, msg, data) => {
   return {
     code,
@@ -36,3 +38,32 @@ module.exports.handleDataPattern = function (data) {
   }
   return arr
 }
+
+/** 设置上传图片文件的引擎 */
+module.exports.ossUploadImg = multer({
+  storage: multerAliOss({
+    config: {
+      region: process.env.OSS_BUCKET_REGION,
+      accessKeyId: process.env.OSS_ACCESS_KEY_ID,
+      accessKeySecret: process.env.OSS_ACCESS_KEY_SECRET,
+      bucket: process.env.OSS_BUCKET_NAME,
+    },
+    destination: 'public/images',
+    filename: function (req, file, cb) {
+      // 获取文件名
+      const originFileName = file.originalname.split('.').at(0)
+      // 获取文件后缀
+      const extType = file.originalname.split('.').at(-1)
+      cb(
+        null,
+        `${originFileName}-${Date.now()}${Math.floor(
+          Math.random() * 9000 + 1000
+        )}.${extType}`
+      )
+    },
+  }),
+  limits: {
+    fileSize: 5 * 1000 * 1000,
+    files: 1,
+  },
+})
