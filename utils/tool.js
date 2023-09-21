@@ -13,7 +13,7 @@ module.exports.formatResponse = (code, msg, data) => {
 
 /**
  * @function 分析token
- * @param {String} token\
+ * @param {String} token
  * @description token来到这注意token是没有过期的
  * @returns 返回token解析结果
  */
@@ -51,19 +51,21 @@ module.exports.ossUploadImg = multer({
     destination: 'public/images',
     filename: function (req, file, cb) {
       // 获取文件名
-      const originFileName = file.originalname.split('.').at(0)
+      const lastDotIndex = file.originalname.lastIndexOf('.')
+      const originFileName = file.originalname.substring(0, lastDotIndex)
       // 获取文件后缀
-      const extType = file.originalname.split('.').at(-1)
+      const fileSuffix = file.originalname.substring(lastDotIndex)
+
       cb(
         null,
         `${originFileName}-${Date.now()}${Math.floor(
           Math.random() * 9000 + 1000
-        )}.${extType}`
+        )}${fileSuffix}`
       )
     },
   }),
   limits: {
-    fileSize: 5 * 1000 * 1000,
+    fileSize: 5 * 1000 * 1000, // 限制图片大小 5MB
     files: 1,
   },
 })

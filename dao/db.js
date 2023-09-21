@@ -4,6 +4,7 @@ const sequelize = require('./dbConnect')
 /** 数据模型 */
 const adminModel = require('./model/adminModel')
 const bannerModel = require('./model/bannerModel')
+const blogTypeModel = require('./model/blogTypeModel')
 
 const md5 = require('md5')
 
