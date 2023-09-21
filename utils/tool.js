@@ -3,6 +3,8 @@ const md5 = require('md5')
 const jwt = require('jsonwebtoken')
 const multer = require('multer')
 const multerAliOss = require('multer-aliyun-oss')
+const lodash = require('lodash')
+
 module.exports.formatResponse = (code, msg, data) => {
   return {
     code,
@@ -69,3 +71,14 @@ module.exports.ossUploadImg = multer({
     files: 1,
   },
 })
+
+/**
+ * @example  { createDateTime: '2023-06-28' } =>  { create_date_time: '2023-06-28' }
+ * @param {Object} inputObj
+ * @returns
+ */
+module.exports.formatCamelCaseToSnakeCase = (inputObj) => {
+  return lodash.mapKeys(inputObj, (value, key) => {
+    return key.replace(/([A-Z])/g, '_$1').toLowerCase()
+  })
+}

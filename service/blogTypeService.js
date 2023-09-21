@@ -50,7 +50,8 @@ module.exports.findAllBlogTypeService = async function () {
 
 // 获取其中一个博客分类
 module.exports.findOneBlogTypeService = async function (id) {
-  return formatResponse(0, '获取当前分类成功', await findOneBlogTypeDao(id))
+  const { dataValues } = await findOneBlogTypeDao(id)
+  return formatResponse(0, '获取当前分类成功', dataValues)
 }
 
 // 修改其中一个博客分类
@@ -62,6 +63,6 @@ module.exports.updateBlogTypeService = async function (id, blogInfo) {
 // 删除其中一个博客分类
 module.exports.deleteBlogTypeService = async function (id) {
   await deleteBlogTypeDao(id)
-  // TODO 这里需要返回受影响的文章的数据，写了文章模块后再回来修改
+  // TODO 这里需要返回受影响的文章的数量，写了文章模块后再回来修改
   return formatResponse(0, '删除成功', true)
 }

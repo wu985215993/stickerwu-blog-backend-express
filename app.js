@@ -22,6 +22,7 @@ const captchaRouter = require('./routes/captcha')
 const bannerRouter = require('./routes/banner')
 const uploadRouter = require('./routes/upload')
 const blogTypeRouter = require('./routes/blogType')
+const blogRouter = require('./routes/blog')
 // 创建服务器实例
 const app = express()
 // 引入 session
@@ -48,10 +49,11 @@ app.use(
     // TODO 需要排除的 token 验证的路由  提出为公共 constant
     path: [
       { url: '/api/admin/login', methods: ['POST'] },
-      {
-        url: '/res/captcha',
-        methods: ['GET'],
-      },
+      { url: '/res/captcha', methods: ['GET'] },
+      { url: '/api/banner', methods: ['GET'] },
+      { url: '/api/blogtype', methods: ['GET'] },
+      { url: '/api/blog', methods: ['GET'] },
+      { url: /\/api\/blog\/\d/, methods: ['GET'] },
     ],
   })
 )
@@ -61,6 +63,7 @@ app.use('/res/captcha', captchaRouter)
 app.use('/api/banner', bannerRouter)
 app.use('/api/upload', uploadRouter)
 app.use('/api/blogtype', blogTypeRouter)
+app.use('/api/blog', blogRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
