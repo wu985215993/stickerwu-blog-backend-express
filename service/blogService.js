@@ -16,7 +16,7 @@ const {
   formatCamelCaseToSnakeCase,
   handleTOC,
 } = require('../utils/tool')
-
+const lodash = require('lodash')
 // 扩展验证规则 在数据库中寻找新增文章传入的文章类型 category_id 比如在数据库中存在
 validate.validators.categoryIdIsExist = async function (value) {
   const blogTypeInfo = blogTypeModel.findByPk(value)
@@ -118,13 +118,33 @@ module.exports.addBlogService = async function (newBlogInfo) {
 module.exports.findBlogByPageService = async function (pageInfo) {
   const data = await findBlogByPageDao(formatCamelCaseToSnakeCase(pageInfo))
   const rows = handleDataPattern(data.rows)
-  // 针对 TOC 要做一个还原的操作
-  rows.forEach((it) => {
+
+  const frontRows = rows.map((v) =>
+    lodash.omit(
+      {
+        ...v,
+        htmlContent: v.html_content,
+        scanNumber: v.scan_number,
+        commentNumber: v.comment_number,
+        categoryId: v.category_id,
+        createDate: v.create_date,
+      },
+      [
+        'html_content',
+        'scan_number',
+        'comment_number',
+        'category_id',
+        'create_date',
+      ]
+    )
+  )
+  // 针对  要做一个还原的操作
+  frontRows.forEach((it) => {
     it.toc = JSON.parse(it.toc)
   })
   return formatResponse(0, '', {
     total: data.count,
-    rows: rows,
+    rows: frontRows,
   })
 }
 
@@ -138,7 +158,28 @@ module.exports.findBlogByIdService = async function (id, auth) {
     data.scan_number++
     await data.save()
   }
-  return formatResponse(0, '', data.dataValues)
+  const frontData = data.dataValues
+  return formatResponse(
+    0,
+    '',
+    lodash.omit(
+      {
+        ...frontData,
+        htmlContent: frontData.html_content,
+        scanNumber: frontData.scan_number,
+        commentNumber: frontData.comment_number,
+        categoryId: frontData.category_id,
+        createDate: frontData.create_date,
+      },
+      [
+        'html_content',
+        'scan_number',
+        'comment_number',
+        'category_id',
+        'create_date',
+      ]
+    )
+  )
 }
 
 // 修改一篇博文
@@ -150,6 +191,20 @@ module.exports.updateBlogService = async function (id, newBlogInfo) {
 
     // 接下来，我们将处理好的TOC格式转为字符串
     newBlogInfo.toc = JSON.stringify(newBlogInfo.toc)
+  }
+  // 首先判断是否改变了博客分类 若不一样则老的 --，新的分类 ++
+  // 获取文章之前的信息
+  const { dataValues: oldBlogInfo } = await findBlogByIdDao(id)
+  if (newBlogInfo.categoryId !== oldBlogInfo.category_id) {
+    // 如果进入此 if 说明修改了此文章的分类信息 则修改前后的文章分类数量都需要修改
+    // 旧分类 --
+    const oldBlogType = await findOneBlogTypeDao(oldBlogInfo.category_id)
+    oldBlogType.article_count--
+    await oldBlogType.save()
+    // 新分类 ++
+    const newBlogType = await findOneBlogTypeDao(newBlogInfo.categoryId)
+    newBlogType.article_count++
+    await newBlogType.save()
   }
   const { dataValues } = await updateBlogDao(
     id,

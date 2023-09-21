@@ -6,9 +6,10 @@ const {
   deleteBlogTypeDao,
   updateBlogTypeDao,
 } = require('../dao/blogTypeDao')
+const { blogCountByBlogType } = require('../dao/blogDao')
 const { ValidationError } = require('../utils/errors')
 const { formatResponse, handleDataPattern } = require('../utils/tool')
-
+const lodash = require('lodash')
 // 新增博客分类
 module.exports.addBlogTypeService = async function (newBlogTypeInfo) {
   // 数据验证规则
@@ -43,7 +44,10 @@ module.exports.addBlogTypeService = async function (newBlogTypeInfo) {
 // 查询所有博客分类
 module.exports.findAllBlogTypeService = async function () {
   const data = await findAllBlogTypeDao()
-  const obj = formatResponse(0, '获取文章分类成功', handleDataPattern(data))
+  const frontData = handleDataPattern(data).map((v) =>
+    lodash.omit({ ...v, articleCount: v.article_count }, ['article_count'])
+  )
+  const obj = formatResponse(0, '获取文章分类成功', frontData)
   obj.data.sort((a, b) => a.order - b.order)
   return obj
 }
@@ -62,7 +66,8 @@ module.exports.updateBlogTypeService = async function (id, blogInfo) {
 
 // 删除其中一个博客分类
 module.exports.deleteBlogTypeService = async function (id) {
+  const count = await blogCountByBlogType(id)
   await deleteBlogTypeDao(id)
   // TODO 这里需要返回受影响的文章的数量，写了文章模块后再回来修改
-  return formatResponse(0, '删除成功', true)
+  return formatResponse(0, '删除成功', count)
 }

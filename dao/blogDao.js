@@ -70,3 +70,12 @@ module.exports.deleteBlogDao = async function (id) {
     },
   })
 }
+
+// 该方法根据博客类别 id，统计对应该博客类型 id 的博文数量
+module.exports.blogCountByBlogType = async function (category_id) {
+  return await blogModel.count({
+    where: {
+      category_id,
+    },
+  })
+}

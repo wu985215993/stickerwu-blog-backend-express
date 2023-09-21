@@ -11,11 +11,6 @@ module.exports.findBannerDao = async function () {
  * @returns 跟新数据库banner
  */
 module.exports.updateBannerDao = async function (bannerArr) {
-  console.log(
-    '%c [ bannerArr ]-14',
-    'font-size:13px; background:pink; color:#bf2c9f;',
-    bannerArr
-  )
   // 将表的记录全部删除掉
   await bannerModel.destroy({
     truncate: true,
