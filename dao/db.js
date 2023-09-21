@@ -8,7 +8,8 @@ const blogTypeModel = require('./model/blogTypeModel')
 const blogModel = require('./model/blogModel')
 const demoModel = require('./model/demoModel')
 const messageModel = require('./model/messageModel')
-
+const settingModel = require('./model/settingModel')
+const aboutModel = require('./model/aboutModel')
 const md5 = require('md5')
 
 ;(async function () {
@@ -77,6 +78,35 @@ const md5 = require('md5')
       },
     ])
     console.log('初始化首页标语数据完毕...')
+  }
+  // 进行一些数据初始化
+  const aboutCount = await aboutModel.count() // 首先进行查询看有没有数据
+  if (!aboutCount) {
+    // 如果没有数据就进行初始化
+    await aboutModel.create({
+      url: 'https://github.com/wu985215993',
+    })
+    console.log('初始化关于我数据...')
+  }
+
+  // 全局设置数据初始化
+  const settingCount = await settingModel.count() // 首先进行查询看有没有数据
+  if (!settingCount) {
+    // 如果没有数据就进行初始化
+    await settingModel.create({
+      avatar: '/static/images/wcw_avatar.jpeg',
+      site_title: '我的个人空间',
+      github: 'https://github.com/wu985215993',
+      qq: '985215993',
+      qq_qr_code: '/static/images/wcw_qq.JPG',
+      weixin: 'stickerwu',
+      weixin_qr_code: '/static/images/wcw_weixin.JPG',
+      mail: 'stickerwu@outlook.com',
+      icp: 'XXXICP备XXXXXX号',
+      github_name: 'wu985215993',
+      favicon: '',
+    })
+    console.log('初始化全局设置数据...')
   }
   console.log('数据库数据已经准备完毕...')
 })()

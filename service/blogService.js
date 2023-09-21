@@ -8,6 +8,7 @@ const {
 } = require('../dao/blogDao')
 const { addBlogToType, findOneBlogTypeDao } = require('../dao/blogTypeDao')
 const blogTypeModel = require('../dao/model/blogTypeModel')
+const { deleteMessageByBlogIdDao } = require('../dao/messageDao')
 const { ValidationError } = require('../utils/errors')
 const {
   formatResponse,
@@ -166,8 +167,8 @@ module.exports.deleteBlogService = async function (id) {
 
   categoryInfo.article_count--
   await categoryInfo.save()
-  // TODO 之后还有一个操作，就是该文章下所对应的评论也要一并删除
-
+  // 删除一篇文章后其下所对应的评论也要一并删除
+  await deleteMessageByBlogIdDao(id)
   // 之后就可以删除这篇文章了
   await deleteBlogDao(id)
   return formatResponse(0, '', true)

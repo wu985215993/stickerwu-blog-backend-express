@@ -63,3 +63,12 @@ module.exports.deleteMessageDao = async function (id) {
     },
   })
 }
+
+// 删除评论（传入的 id 是 message 表中的 blogId）
+module.exports.deleteMessageByBlogIdDao = async function (blog_id) {
+  return await messageModel.destroy({
+    where: {
+      blog_id,
+    },
+  })
+}

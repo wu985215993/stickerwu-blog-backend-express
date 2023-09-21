@@ -25,6 +25,8 @@ const blogTypeRouter = require('./routes/blogType')
 const blogRouter = require('./routes/blog')
 const demoRouter = require('./routes/demo')
 const messageRouter = require('./routes/message')
+const aboutRouter = require('./routes/about')
+const settingRouter = require('./routes/setting')
 // 创建服务器实例
 const app = express()
 // 引入 session
@@ -59,6 +61,8 @@ app.use(
       { url: '/api/project', methods: ['GET'] },
       { url: '/api/message', methods: ['GET', 'POST'] },
       { url: '/api/comment', methods: ['GET', 'POST'] },
+      { url: '/api/about', methods: ['GET'] },
+      { url: '/api/setting', methods: ['GET'] },
     ],
   })
 )
@@ -72,7 +76,8 @@ app.use('/api/blog', blogRouter)
 app.use('/api/project', demoRouter)
 app.use('/api/message', messageRouter)
 app.use('/api/comment', messageRouter)
-
+app.use('/api/about', aboutRouter)
+app.use('/api/setting', settingRouter)
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404))
