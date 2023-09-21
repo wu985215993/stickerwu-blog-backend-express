@@ -7,6 +7,7 @@ const bannerModel = require('./model/bannerModel')
 const blogTypeModel = require('./model/blogTypeModel')
 const blogModel = require('./model/blogModel')
 const demoModel = require('./model/demoModel')
+const messageModel = require('./model/messageModel')
 
 const md5 = require('md5')
 
@@ -21,6 +22,16 @@ const md5 = require('md5')
     foreignKey: 'category_id',
     targetKey: 'id',
     as: 'category',
+  })
+  // 博客与评论之间存在关联关系
+  blogModel.hasMany(messageModel, {
+    foreignKey: 'blog_id',
+    targetKey: 'id',
+  })
+  messageModel.belongsTo(blogModel, {
+    foreignKey: 'blog_id',
+    targetKey: 'id',
+    as: 'blog',
   })
   // 将数据模型和表进行同步
   await sequelize.sync({
