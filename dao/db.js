@@ -6,6 +6,7 @@ const adminModel = require('./model/adminModel')
 const bannerModel = require('./model/bannerModel')
 const blogTypeModel = require('./model/blogTypeModel')
 const blogModel = require('./model/blogModel')
+const demoModel = require('./model/demoModel')
 
 const md5 = require('md5')
 

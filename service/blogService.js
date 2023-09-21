@@ -13,6 +13,7 @@ const {
   formatResponse,
   handleDataPattern,
   formatCamelCaseToSnakeCase,
+  handleTOC,
 } = require('../utils/tool')
 
 // 扩展验证规则 在数据库中寻找新增文章传入的文章类型 category_id 比如在数据库中存在
@@ -27,10 +28,10 @@ validate.validators.categoryIdIsExist = async function (value) {
 // 添加博客
 module.exports.addBlogService = async function (newBlogInfo) {
   // 首先第一个要处理的就是 TOC
-  // TODO
-
+  // 经过 handleTOC 函数进行处理之后，现在 newBlogInfo 里面的 TOC 目录就是需要的格式
+  newBlogInfo = handleTOC(newBlogInfo)
   // 接下来，我们将处理好的TOC格式转为字符串
-  newBlogInfo.toc = JSON.stringify([{ a: 'b' }])
+  newBlogInfo.toc = JSON.stringify(newBlogInfo.toc)
 
   // 初始化新文章的其他信息
   newBlogInfo.scanNumber = 0 // 阅读量初始化为 0
@@ -144,8 +145,10 @@ module.exports.updateBlogService = async function (id, newBlogInfo) {
   // 首先判断正文内容有没有改变，因为正文内容的改变会影响 TOC
   if (newBlogInfo.htmlContent) {
     // 进入此 if，说明文章的正文内容有所改变，需要重新处理 TOC 目录
-    // TODO
-    newBlogInfo.toc = JSON.stringify([{ a: 'bbbbbb' }])
+    newBlogInfo = handleTOC(newBlogInfo)
+
+    // 接下来，我们将处理好的TOC格式转为字符串
+    newBlogInfo.toc = JSON.stringify(newBlogInfo.toc)
   }
   const { dataValues } = await updateBlogDao(
     id,
