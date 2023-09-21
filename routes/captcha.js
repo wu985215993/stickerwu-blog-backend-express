@@ -8,7 +8,7 @@ router.get('/', async function (req, res, next) {
   // 保存验证码到 sesstion 当中
   req.session.captcha = captcha.text
   // 发送验证码图片设置响应头
-  res.setHeader('Content-Type', 'iamge/svg+xml')
+  res.setHeader('Content-Type', 'image/svg+xml')
   res.send(captcha.data)
 })
 
