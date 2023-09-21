@@ -23,6 +23,7 @@ const bannerRouter = require('./routes/banner')
 const uploadRouter = require('./routes/upload')
 const blogTypeRouter = require('./routes/blogType')
 const blogRouter = require('./routes/blog')
+const demoRouter = require('./routes/demo')
 // 创建服务器实例
 const app = express()
 // 引入 session
@@ -54,6 +55,7 @@ app.use(
       { url: '/api/blogtype', methods: ['GET'] },
       { url: '/api/blog', methods: ['GET'] },
       { url: /\/api\/blog\/\d/, methods: ['GET'] },
+      { url: '/api/project', methods: ['GET'] },
     ],
   })
 )
@@ -64,6 +66,7 @@ app.use('/api/banner', bannerRouter)
 app.use('/api/upload', uploadRouter)
 app.use('/api/blogtype', blogTypeRouter)
 app.use('/api/blog', blogRouter)
+app.use('/api/project', demoRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -72,11 +75,6 @@ app.use(function (req, res, next) {
 
 // 错误处理，一旦发生错误在这里统一处理
 app.use(function (err, req, res, next) {
-  console.log(
-    '%c [ 监听错误 err ]-50',
-    'font-size:13px; background:pink; color:#bf2c9f;',
-    err
-  )
   // token 验证错误 抛出自定义错误
   if (err.name === 'UnauthorizedError') {
     res.send(new ForbiddenError('未登录，或者登录过期').toResponseJSON())
