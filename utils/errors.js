@@ -66,5 +66,14 @@ exports.UnknownError = class UnknownError extends ServiceError {
     super('server internal error', 500)
   }
 }
+/**
+ * 内部执行错误
+ */
+exports.JavaScriptError = class JavaScriptError extends ServiceError {
+  constructor(message) {
+    super(message, 500)
+  }
+}
+
 
 module.exports.ServiceError = ServiceError

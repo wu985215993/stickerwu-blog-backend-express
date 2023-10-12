@@ -217,14 +217,17 @@ module.exports.updateBlogService = async function (id, newBlogInfo) {
 module.exports.deleteBlogService = async function (id) {
   // 根据 id 查询到该篇文章的信息
   const data = await findBlogByIdDao(id)
+
   // 接下来需要根据该文章对应的分类，该分类下的文章数量自减
   const categoryInfo = await findOneBlogTypeDao(data.dataValues.category_id)
-
-  categoryInfo.article_count--
-  await categoryInfo.save()
+  if(!!categoryInfo){
+    categoryInfo.article_count--
+    await categoryInfo.save()
+  }
   // 删除一篇文章后其下所对应的评论也要一并删除
   await deleteMessageByBlogIdDao(id)
   // 之后就可以删除这篇文章了
   await deleteBlogDao(id)
+
   return formatResponse(0, '', true)
 }

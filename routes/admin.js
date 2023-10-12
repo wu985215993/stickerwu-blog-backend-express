@@ -16,9 +16,11 @@ router.post('/login', async function (req, res, next) {
   /** 服务层表示登陆成功 */
   if (result.token) {
     res.setHeader('authentication', result.token)
-  }
   // 格式化客户端的响应
   res.send(formatResponse(0, '登陆成功', result.data))
+  }else{
+    throw new ValidationError('用户名或帐号错误')
+  }
 })
 
 /** GET 恢复登陆状态 */

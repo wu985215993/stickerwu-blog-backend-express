@@ -10,7 +10,7 @@ const md5 = require('md5')
 const session = require('express-session')
 // 专用于客户端token验证
 const { expressjwt: expressJWT } = require('express-jwt')
-const { ForbiddenError, ServiceError, UnknownError } = require('./utils/errors')
+const { ForbiddenError, ServiceError, UnknownError,JavaScriptError } = require('./utils/errors')
 
 require('express-async-errors')
 // 引入数据库测试数据库连接
@@ -88,8 +88,10 @@ app.use(function (err, req, res, next) {
   // token 验证错误 抛出自定义错误
   if (err.name === 'UnauthorizedError') {
     res.send(new ForbiddenError('未登录，或者登录过期').toResponseJSON())
-  } else if (err instanceof ServiceError) {
-    res.send(err.toResponseJSON())
+  } else if(err.name ==='TypeError'){
+    res.send(new JavaScriptError(err.message).toResponseJSON())
+  }else if (err instanceof ServiceError) {
+    res.send(err.toResponseJSON(err.message))
   } else {
     res.send(new UnknownError().toResponseJSON())
   }
