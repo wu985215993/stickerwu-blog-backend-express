@@ -21,7 +21,11 @@ module.exports = sequelize.define(
     },
     html_content: {
       type: DataTypes.TEXT,
-      allowNull: false,
+      allowNull: true,
+    },
+    markdown_content: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     },
     // 缩略图
     thumb: {

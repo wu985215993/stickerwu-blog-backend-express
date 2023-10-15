@@ -30,7 +30,7 @@ validate.validators.categoryIdIsExist = async function (value) {
 module.exports.addBlogService = async function (newBlogInfo) {
   // 首先第一个要处理的就是 TOC
   // 经过 handleTOC 函数进行处理之后，现在 newBlogInfo 里面的 TOC 目录就是需要的格式
-  newBlogInfo = handleTOC(newBlogInfo)
+  // newBlogInfo = handleTOC(newBlogInfo)
   // 接下来，我们将处理好的TOC格式转为字符串
   newBlogInfo.toc = JSON.stringify(newBlogInfo.toc)
 
@@ -59,6 +59,12 @@ module.exports.addBlogService = async function (newBlogInfo) {
       type: 'string',
     },
     htmlContent: {
+      presence: {
+        allowEmpty: true,
+      },
+      type: 'string',
+    },
+    markdownContent: {
       presence: {
         allowEmpty: false,
       },
@@ -100,7 +106,6 @@ module.exports.addBlogService = async function (newBlogInfo) {
     // 扩展的验证规则里面涉及到异步的操作，所以这里要采用异步的验证方式
     await validate.async(newBlogInfo, blogRule)
     const data = await addBlogDao(formatCamelCaseToSnakeCase(newBlogInfo)) // 进行一个新增
-
     // 文章新增了  对应的文章分类也应该新增
     await addBlogToType(newBlogInfo.categoryId)
     return formatResponse(0, '', data)
@@ -124,6 +129,7 @@ module.exports.findBlogByPageService = async function (pageInfo) {
       {
         ...v,
         htmlContent: v.html_content,
+        markdownContent: v.markdown_content,
         scanNumber: v.scan_number,
         commentNumber: v.comment_number,
         categoryId: v.category_id,
@@ -131,6 +137,7 @@ module.exports.findBlogByPageService = async function (pageInfo) {
       },
       [
         'html_content',
+        'markdown_content',
         'scan_number',
         'comment_number',
         'category_id',
@@ -166,6 +173,7 @@ module.exports.findBlogByIdService = async function (id, auth) {
       {
         ...frontData,
         htmlContent: frontData.html_content,
+        markdownContent: frontData.markdown_content,
         scanNumber: frontData.scan_number,
         commentNumber: frontData.comment_number,
         categoryId: frontData.category_id,
@@ -173,6 +181,7 @@ module.exports.findBlogByIdService = async function (id, auth) {
       },
       [
         'html_content',
+        'markdown_content',
         'scan_number',
         'comment_number',
         'category_id',
@@ -184,10 +193,11 @@ module.exports.findBlogByIdService = async function (id, auth) {
 
 // 修改一篇博文
 module.exports.updateBlogService = async function (id, newBlogInfo) {
+  newBlogInfo.toc = JSON.stringify(newBlogInfo.toc)
   // 首先判断正文内容有没有改变，因为正文内容的改变会影响 TOC
   if (newBlogInfo.htmlContent) {
-    // 进入此 if，说明文章的正文内容有所改变，需要重新处理 TOC 目录
-    newBlogInfo = handleTOC(newBlogInfo)
+    // TODO 干掉 TOC逻辑 进入此 if，说明文章的正文内容有所改变，需要重新处理 TOC 目录
+    // newBlogInfo = handleTOC(newBlogInfo)
 
     // 接下来，我们将处理好的TOC格式转为字符串
     newBlogInfo.toc = JSON.stringify(newBlogInfo.toc)
@@ -198,9 +208,12 @@ module.exports.updateBlogService = async function (id, newBlogInfo) {
   if (newBlogInfo.categoryId !== oldBlogInfo.category_id) {
     // 如果进入此 if 说明修改了此文章的分类信息 则修改前后的文章分类数量都需要修改
     // 旧分类 --
-    const oldBlogType = await findOneBlogTypeDao(oldBlogInfo.category_id)
-    oldBlogType.article_count--
-    await oldBlogType.save()
+    // 这里旧分类如果没有则不管
+    if (oldBlogInfo.category_id) {
+      const oldBlogType = await findOneBlogTypeDao(oldBlogInfo.category_id)
+      oldBlogType.article_count--
+      await oldBlogType.save()
+    }
     // 新分类 ++
     const newBlogType = await findOneBlogTypeDao(newBlogInfo.categoryId)
     newBlogType.article_count++
@@ -220,7 +233,7 @@ module.exports.deleteBlogService = async function (id) {
 
   // 接下来需要根据该文章对应的分类，该分类下的文章数量自减
   const categoryInfo = await findOneBlogTypeDao(data.dataValues.category_id)
-  if(!!categoryInfo){
+  if (!!categoryInfo) {
     categoryInfo.article_count--
     await categoryInfo.save()
   }
