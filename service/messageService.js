@@ -92,13 +92,20 @@ module.exports.findMessageByPageService = async function (pageInfo) {
   // TODO 后期检查优化下返回给 front 的数据格式
   // 先转为前端的字符格式
   const frontRows = rows.map(formatSnakeCaseToCamelCase)
-  const frontRowsWithoutBlogContent = frontRows.map(v => {
-    const updatedBlog = formatSnakeCaseToCamelCase(lodash.omit(v.blog.dataValues, ['toc', 'html_content', 'markdown_content']))
-    return { ...v, blog: updatedBlog };
-  });
+  const formatResponseWithoutBlogContent = frontRows.map((v) => {
+    if (v.blogId) {
+      const frontBlogData = formatSnakeCaseToCamelCase(
+        lodash.omit(v.blog.dataValues, ['toc', 'markdown_content', 'html_content'])
+      )
+      return { ...v, blog: frontBlogData }
+    } else {
+      return v
+    }
+  })
+
   return formatResponse(0, '', {
     total: data.count,
-    rows: frontRowsWithoutBlogContent,
+    rows: formatResponseWithoutBlogContent,
   })
 }
 
