@@ -11,6 +11,7 @@ const {
   formatResponse,
   handleDataPattern,
   formatCamelCaseToSnakeCase,
+  formatSnakeCaseToCamelCase
 } = require('../utils/tool')
 const lodash = require('lodash')
 const dir = './public/static/avatar'
@@ -19,7 +20,7 @@ const dir = './public/static/avatar'
  * 读取一个目录下有多少个文件
  * @param {*} dir 目录地址
  */
-async function readDirLength(dir) {
+async function readDirLength (dir) {
   return new Promise((resolve) => {
     fs.readdir(dir, (err, files) => {
       if (err) throw new UnknownError()
@@ -89,16 +90,15 @@ module.exports.findMessageByPageService = async function (pageInfo) {
 
   const rows = handleDataPattern(data.rows)
   // TODO 后期检查优化下返回给 front 的数据格式
-  const frontRows = rows.map((v) =>
-    lodash.omit({ ...v, createDate: v.create_date, blogId: v.blog_id }, [
-      'create_date',
-      'blog_id',
-    ])
-  )
-
+  // 先转为前端的字符格式
+  const frontRows = rows.map(formatSnakeCaseToCamelCase)
+  const frontRowsWithoutBlogContent = frontRows.map(v => {
+    const updatedBlog = formatSnakeCaseToCamelCase(lodash.omit(v.blog.dataValues, ['toc', 'html_content', 'markdown_content']))
+    return { ...v, blog: updatedBlog };
+  });
   return formatResponse(0, '', {
     total: data.count,
-    rows: frontRows,
+    rows: frontRowsWithoutBlogContent,
   })
 }
 

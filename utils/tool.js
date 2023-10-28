@@ -85,6 +85,18 @@ module.exports.formatCamelCaseToSnakeCase = (inputObj) => {
 }
 
 /**
+ * @example  { create_date_time: '2023-06-28' } =>  { createDateTime: '2023-06-28' }
+ * @param {Object} inputObj
+ * @returns
+ */
+module.exports.formatSnakeCaseToCamelCase = (inputObj) => {
+  return Object.keys(inputObj).reduce((acc, key) => {
+    const camelCaseKey = key.replace(/_(\w)/g, (_, p1) => p1.toUpperCase());
+    acc[camelCaseKey] = inputObj[key];
+    return acc;
+  }, {});
+}
+/**
  * 处理 TOC
  */
 module.exports.handleTOC = function (info) {
@@ -113,7 +125,7 @@ module.exports.handleTOC = function (info) {
 
   // 接下来对上面的数据进行一个转换
 
-  function transfer(flatArr) {
+  function transfer (flatArr) {
     const stack = [] // 模拟栈的结构
     const result = [] // 存放最终转换结果的数组
 
@@ -122,7 +134,7 @@ module.exports.handleTOC = function (info) {
      * @param {*} item
      * @returns
      */
-    function createTOCItem(item) {
+    function createTOCItem (item) {
       return {
         name: item.content,
         anchor: item.slug,
@@ -131,7 +143,7 @@ module.exports.handleTOC = function (info) {
       }
     }
 
-    function handleItem(item) {
+    function handleItem (item) {
       // 获取 stack 栈顶的元素，也就是该数组的最后一个元素
       // 如果该数组为空，得到的是一个 undefined
       const top = stack[stack.length - 1]
